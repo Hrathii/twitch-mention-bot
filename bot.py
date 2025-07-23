@@ -1,3 +1,21 @@
+# --- Webserver-Teil, damit Render "Web Service" akzeptiert ---
+from flask import Flask
+import threading
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Twitch bot is running!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+t = threading.Thread(target=run)
+t.start()
+
+# --- Ab hier: Dein normaler Botcode ---
+
 import os
 import socket
 import requests
