@@ -53,13 +53,33 @@ def send_to_discord(message):
         except Exception as e:
             print("Fehler beim Senden an Discord:", e)
 
+buffer = ""
 while True:
-    resp = sock.recv(2048).decode("utf-8")
+    try:
+        buffer += sock.recv(2048).decode("utf-8")
+        lines = buffer.split("\r\n")
+        buffer = lines.pop()  # Letzte unvollständige Zeile behalten
 
-    if resp.startswith("PING"):
-        sock.send("PONG\n".encode("utf-8"))
+        for resp in lines:
+            if resp.startswith("PING"):
+                sock.send("PONG\n".encode("utf-8"))
+                continue
 
-    elif "PRIVMSG" in resp:
+            if "PRIVMSG" in resp:
+                try:
+                    username = resp.split("!", 1)[0][1:]
+                    message = resp.split("PRIVMSG", 1)[1].split(":", 1)[1]
+                    print(f"{username}: {message.strip()}")
+
+                    if WATCHED_NAME.lower() in message.lower():
+                        channel = resp.split("PRIVMSG")[1].split("#")[1].split(" ")[0]
+                        alert = f"🔔 **{WATCHED_NAME}** wurde erwähnt in **#{channel}** von **{username}**:\n> {message.strip()}"
+                        send_to_discord(alert)
+                except Exception as e:
+                    print("Parsing-Fehler:", e)
+    except Exception as e:
+        print("Fehler beim Empfang der Daten:", e)
+
         username = resp.split("!", 1)[0][1:]
         message = resp.split("PRIVMSG", 1)[1].split(":", 1)[1]
 
