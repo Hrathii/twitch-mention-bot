@@ -1,6 +1,10 @@
 # --- Webserver-Teil, damit Render "Web Service" akzeptiert ---
 from flask import Flask
 import threading
+import os
+import socket
+import requests
+from dotenv import load_dotenv
 
 app = Flask('')
 
@@ -15,11 +19,6 @@ t = threading.Thread(target=run)
 t.start()
 
 # --- Ab hier: Dein normaler Botcode ---
-
-import os
-import socket
-import requests
-from dotenv import load_dotenv
 
 load_dotenv()  # .env-Datei laden
 
